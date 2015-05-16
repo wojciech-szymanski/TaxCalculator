@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en" ng-app="taxApp">
+<head>
+  <meta charset="utf-8">
+  <title>Tax Calculator</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <script src="lib/angular/angular.js"></script>
+  <script src="js/controllers.js"></script>
+  <script src="js/directives.js"></script>
+  <script src="js/services.js"></script>
+</head>
+<body>
+
+  <div class="container" ng-controller="taxCalculator">
+    <div class="page-header">
+      <h1>Opodatkowanie dochodów zagranicznych</h1>
+      <p class="lead">Aplikacja pomaga obliczyć zobowiązania podatkowe za rok 2013 w sytuacji gdy część roku przepracowaliśmy za granicą. Obliczenia dotyczą krajów z którymi Polska ma podpisaną umowę o podwójnym opodoatkowaniu i gdzie stosuje się metodę wyłączenia z progresją.</p>
+    </div>
+    <div >
+
+    <div class="row">
+
+      <div class="col-md-3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h2 class="panel-title">Przychody PL</h3>
+          </div>
+          <div class="panel-body">
+            <fieldset>
+              <label for="income-pl-base">Przychód PL</label>
+              <input type="text" id="income-pl-base" ng-model="user_data.income_pl_base" float class="form-control" />
+              <label for="insurance-pl">Składki ZUS PL</label>
+              <input type="text" id="insurance-pl" ng-model="user_data.insurance_pl" float class="form-control" />
+              <label for="health-pl">Składki zdrowotne PL</label>
+              <input type="text" id="health-pl" ng-model="user_data.health_pl" float class="form-control" />
+              <label for="income-pl">Podstawa opodatkowania</label>
+              <input type="text" id="income-pl" ng-model="totals.income_pl" disabled="true" class="form-control" />
+              <label for="paid-tax">Zapłacony podatek</label>
+              <input type="text" id="paid-tax" ng-model="user_data.paid_tax" float class="form-control" />
+            </fieldset>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h2 class="panel-title">Przychody zagraniczne</h3>
+          </div>
+          <div class="panel-body">
+            <fieldset>
+              <div class="panel">
+                <p>Wprowadź wysokość diety w danym kraju w walucie zagranicznej</p>
+                <label for="foreign-allowance">Dieta w walucie zagranicznej</label>
+                <input type="text" id="foreign-allowance" ng-model="user_data.foreign_daily_allowance" ng-change="calculateAll()" float class="form-control" />
+              </div>
+              <div class="panel">
+                <p>Kliknij poniżej aby wprowadzić wynagrodzenie za każdy miesiąc pracy za granicą. Posłuży to do obliczenia podstawy dochodów zagranicznych pomniejszonych o 30% diety i koszty uzyskania przychodu.</p>
+                <input type="button" ng-click="addMonth()" value="Dodaj" class="btn btn-primary" />
+              </div>
+              <table class="table">
+                <thead ng-show="user_data.income_foreign.length">
+                  <tr>
+                    <th>Ilość dni</th>
+                    <th>Wynagrodzenie</th>
+                    <th>Kurs średni</th>
+                    <th>Razem</th>
+                    <th>PLN</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="month in user_data.income_foreign">
+                    <td><input ng-model="month.user_data.days" ng-change="calculateTaxable(month)" float class="form-control" /></td>
+                    <td><input ng-model="month.user_data.salary" ng-change="calculateTaxable(month)" float class="form-control" /></td>
+                    <td><input ng-model="month.user_data.exchange_rate" ng-change="calculateTaxable(month)" float class="form-control" /></td>
+                    <td>{{month.taxable}}</td>
+                    <td>{{month.pln_amount}}</td>
+                  </tr>
+                  <tr ng-show="user_data.income_foreign.length">
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>{{totals.income_foreign}}</td>
+                    <td>{{totals.income_foreign_to_pln}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h2 class="panel-title">Obliczone</h3>
+          </div>
+          <div class="panel-body">
+            <fieldset>
+              <label for="income-total">Przychód całkowity w PLN</label>
+              <input type="text" id="income-total" ng-model="totals.combined_income" disabled="true" class="form-control" />
+              <label for="new-rate">Nowa skala podatkowa</label>
+              <input type="text" id="new-rate" ng-model="totals.new_tax_rate" disabled="true" class="form-control" />
+              <label for="tax-pay">Należny podatek</label>
+              <input type="text" id="tax-pay" ng-model="totals.tax_to_pay" disabled="true" class="form-control" />
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
